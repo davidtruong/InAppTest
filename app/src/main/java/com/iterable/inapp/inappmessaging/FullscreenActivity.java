@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -13,8 +14,12 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -52,12 +57,21 @@ public class FullscreenActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
         setContentView(R.layout.activity_fullscreen);
+
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
 
+        WebView myWebView = (WebView) findViewById(R.id.web_view);
+        WebSettings webSettings = myWebView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+
+        myWebView.loadUrl("https://iterable.com");
 
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(new View.OnClickListener() {
@@ -146,9 +160,12 @@ public class FullscreenActivity extends ActionBarActivity {
                 // this removal is automatically animated.
                 popupWindow.mContainerView.removeView(newView);
 
+                //set local notification
+
+
                 // If there are no rows remaining, show the empty view.
                 if (popupWindow.mContainerView.getChildCount() == 0) {
-                    findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
+                    //findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
                 }
             }
         });

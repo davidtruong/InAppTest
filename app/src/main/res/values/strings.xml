@@ -5,7 +5,7 @@
     <string name="dummy_content">ITERABLE DEMO</string>
     <string name="dialog_message">Test Message</string>
     <string name="dialog_title">Notifications</string>
-    <string name="title_layout_changes">Test Layout Title</string>
+    <string name="title_layout_changes">Notifications</string>
 
 
     <string name="message_empty_layout_changes">Add an item above to get started.</string>
