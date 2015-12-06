@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">In App Messaging</string>
+
+    <string name="dummy_button">In-app Notifications</string>
+    <string name="dummy_content">ITERABLE DEMO</string>
+    <string name="dialog_message">Test Message</string>
+    <string name="dialog_title">Notifications</string>
+    <string name="title_layout_changes">Test Layout Title</string>
+
+
+    <string name="message_empty_layout_changes">Add an item above to get started.</string>
+
+    <string name="action_remove_item">Remove item</string>
+    <string name="action_add_item">Add item</string>
+
+</resources>
