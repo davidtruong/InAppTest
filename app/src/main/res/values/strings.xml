@@ -13,4 +13,8 @@
     <string name="action_remove_item">Remove item</string>
     <string name="action_add_item">Add item</string>
 
+    <string name="notification_title">Notif Title</string>
+    <string name="notification_text">Notif Text</string>
+
+
 </resources>

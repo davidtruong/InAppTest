@@ -3,13 +3,20 @@ package com.iterable.inapp.inappmessaging;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Build;
+import android.os.StrictMode;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,6 +30,27 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -81,99 +109,77 @@ public class FullscreenActivity extends ActionBarActivity {
             }
         });
 
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
         //Setup button click
         findViewById(R.id.dummy_button).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Perform action on click
-
-                //Show Alert
-//                AlertDialog alertDialog = new AlertDialog.Builder(FullscreenActivity.this).create();
-//                alertDialog.setTitle("Alert");
-//                alertDialog.setMessage("Alert message to be shown");
-//                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                dialog.dismiss();
-//                            }
-//                        });
-//                alertDialog.show();
-
-                //Animate
-//                Animation bottomUp = AnimationUtils.loadAnimation(getContext(),
-//                        R.anim.bottom_up);
-//                ViewGroup hiddenPanel = (ViewGroup)findViewById(R.id.hidden_panel);
-//                hiddenPanel.startAnimation(bottomUp);
-//                hiddenPanel.setVisibility(View.VISIBLE);
-
                 startActivity(new Intent(FullscreenActivity.this, LayoutChangesActivity.class));
-
-                //final Button btnOpenPopup = (Button)findViewById(R.id.openpopup);
-                //btnOpenPopup.setOnClickListener(new Button.OnClickListener(){
-
-                LayoutInflater layoutInflater
-                        = (LayoutInflater)getBaseContext()
-                        .getSystemService(LAYOUT_INFLATER_SERVICE);
-                View popupView = layoutInflater.inflate(R.layout.activity_layout_changes, null);
-
-//                final ViewGroup newView = (ViewGroup) LayoutInflater.from(getApplicationContext()).inflate(
-//                        R.layout.list_item_example, popupWindow.mContainerView, false);
-
-               // NotificationHolder popupWindow = new NotificationHolder(popupView.getContext());
-
-//                if (popupWindow == null) {
-//                    popupWindow = new NotificationHolder(
-//                            popupView,
-//                            ViewGroup.LayoutParams.WRAP_CONTENT,
-//                            ViewGroup.LayoutParams.WRAP_CONTENT);
-//                    popupWindow.showAsDropDown(popupView, 100, 100);
-//                }
-//                else
-//                {
-//                    addItem();
-//                }
-
                 System.out.println("User Clicked the Button");
             }
         });
     }
 
-    private void addItem()
+    //refactor out
+    public static String connectToServer(String registrationUrl)
     {
-        final ViewGroup newView = (ViewGroup) LayoutInflater.from(this).inflate(
-                R.layout.list_item_example, popupWindow.mContainerView, false);
+        String contentText = "";
+        URL url = null;
+        try {
 
-        // Set the text in the new row to a random country.
-        ((TextView) newView.findViewById(android.R.id.text1)).setText(
-                NotificationHolder.COUNTRIES[(int) (Math.random() * NotificationHolder.COUNTRIES.length)]);
+            //Post
+            //http://ilyas-mbp-2:9000/api/users/addInAppNotification?api_key=iterableApiKey
+            //email
+            //notification []
 
-        // Set a click listener for the "X" button in the row that will remove the row.
-        newView.findViewById(R.id.delete_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Remove the row from its parent (the container view).
-                // Because mContainerView has android:animateLayoutChanges set to true,
-                // this removal is automatically animated.
-                popupWindow.mContainerView.removeView(newView);
+            contentText = getTextFromUrl(registrationUrl);
+            //store the notifications
 
-                //set local notification
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
-
-                // If there are no rows remaining, show the empty view.
-                if (popupWindow.mContainerView.getChildCount() == 0) {
-                    //findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
-                }
-            }
-        });
-
-        // Because mContainerView has android:animateLayoutChanges set to true,
-        // adding this view is automatically animated.
-        popupWindow.mContainerView.addView(newView, 0);
+        return contentText;
     }
+
+    public static String getTextFromUrl(String registrationUrl)
+    {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        String response = "";
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpGet httpGet = new HttpGet(registrationUrl);
+        try {
+            HttpResponse execute = client.execute(httpGet);
+            InputStream content = execute.getEntity().getContent();
+
+            BufferedReader buffer = new BufferedReader(
+                    new InputStreamReader(content));
+            String s = "";
+            while ((s = buffer.readLine()) != null) {
+                response += s;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+
+
+    //Not used
+    private void showAlert(String textString)
+    {
+        //Show Alert
+        AlertDialog alertDialog = new AlertDialog.Builder(FullscreenActivity.this).create();
+        alertDialog.setTitle("Alert");
+        alertDialog.setMessage(textString);
+        alertDialog.show();
+    }
+
+
 
     private final View.OnTouchListener mButtonListener = new View.OnTouchListener() {
         @Override
